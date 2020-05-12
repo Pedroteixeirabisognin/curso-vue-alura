@@ -3,10 +3,18 @@
   <div class="corpo">
     <h1 class="centralizado">{{ titulo }}</h1>
 
+    <input
+      type="search"
+      class="filtro"
+      v-on:input="filtro = $event.target.value"
+      placeholder="filtre pelo título da foto"
+    />
+
+    {{ filtro }}
     <ul class="lista-fotos">
-      <li class="lista-fotos-item" v-for="foto in fotos" v-bind:key="foto">
+      <li class="lista-fotos-item" v-for="foto in fotosComFiltro" v-bind:key="foto">
         <meu-painel :titulo="foto.titulo">
-          <img class="imagem-responsiva" :src="foto.url" :alt="foto.titulo" />
+          <imagem-responsiva class="imagem-responsiva" :src="foto.url" :alt="foto.titulo" />
         </meu-painel>
       </li>
     </ul>
@@ -15,17 +23,30 @@
 
 
 <script>
-import Painel from "./components/shared/painel/Painel.vue";
+import Painel from "./components/shared/painel/painel.vue";
+import ImagemResponsiva from "./components/shared/imagem-responsiva/imagemResponsiva"
 
 export default {
   components: {
-    "meu-painel": Painel
+    "meu-painel": Painel,
+    "imagem-responsiva": ImagemResponsiva
   },
   data() {
     return {
       titulo: "Alurapic",
-      fotos: []
+      fotos: [],
+      filtro: ""
     };
+  },
+  computed: {
+    fotosComFiltro() {
+      if (this.filtro) {
+        let exp = new RegExp(this.filtro.trim(), "i");
+        return this.fotos.filter(foto => exp.test(foto.titulo));
+      } else {
+        return this.fotos;
+      }
+    }
   },
   created() {
     //$http só funciona pois foi instânciado em main js VueResource
@@ -62,9 +83,6 @@ export default {
   display: inline-block;
 }
 
-.imagem-responsiva {
-  width: 100%;
-}
 
 /* estilo do painel */
 
@@ -91,5 +109,10 @@ export default {
 
 .painel * {
   box-shadow: 5px 5px 5px;
+}
+
+.filtro {
+  display: block;
+  width: 100%;
 }
 </style>
